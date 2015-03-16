@@ -1,0 +1,213 @@
+<html>
+<head>
+    <title>svg-文本编辑示例</title>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="raphael.js"></script>
+</head>
+<body>
+        <input  type="text" id="myText" style="background-color:transparent;width:0px;height:0px;border:0px;margin:0px;padding:0px;"/>
+        <script type="text/javascript">
+            //正常显示状态下，鼠标移入事件
+            var HoverIn = function(){
+                switch(state){
+                        case EditorState.show:{
+                            this.click(StartSelectState);
+                            break;
+                        }
+                        case EditorState.select:{
+                            break;
+                        }
+                        case EditorState.edit:{
+                            break;
+                        }
+                }
+            };
+             //正常显示状态下，鼠标移出事件
+            var HoverOut = function(){
+                 switch(state){
+                        case EditorState.show:{
+                            editor.hide();
+                            break;
+                        }
+                        case EditorState.select:{
+                            break;
+                        }
+                        case EditorState.edit:{
+                            break;
+                        }
+                }
+            };
+            //点击文本开始编辑状态
+            var StartEditState = function(e){
+                e = e || event;
+               state = EditorState.edit;
+                this.attr({cursor:"text"});
+                var target = e.target || e.srcElement;
+                var box =  this.getBBox();
+                editor.attr({x:box.x-2,y:box.y-2,width:box.width+4,height:box.height+4,fill:"transparent",stroke:"#f00","stroke-dasharray":"-"});
+                var point = pager.canvas.createSVGPoint();
+                point.x = e.clientX;
+                point.y = e.clientY;
+               var charNum =  target.getCharNumAtPosition(point);
+                var endPosition = target.getEndPositionOfChar(charNum);
+                var startPostion = target.getStartPositionOfChar(charNum);
+                if( point.x-startPostion.x > endPosition.x-point.x){
+                    cursor.attr({path:"M"+endPosition.x+","+box.y+"L"+endPosition.x+","+box.y2});
+                }else{
+                     cursor.attr({path:"M"+startPostion.x+","+box.y+"L"+startPostion.x+","+box.y2});
+                }
+                cursorHide(cursor);
+                cursorShow(cursor);
+                this.unhover(HoverIn,HoverOut);
+                var originalText = this.attr("text");
+                var myText = document.getElementById("myText");
+                myText.value = originalText;
+                myText.focus();
+                setCursorPosition(myText,charNum+1);
+                myText.onkeyup = function(e){
+                                //修改文本内容
+                               objText.attr({text:myText.value})
+                                //修改外边框大小
+                                var box =  objText.getBBox();
+                                editor.attr({x:box.x-2,y:box.y-2,width:box.width+4,height:box.height+4,fill:"transparent",stroke:"#f00","stroke-dasharray":"-"});
+                                editor.show();
+                                //修改光标位置
+                                var cursorPosition = getCursortPosition(myText);
+                                if(cursorPosition==myText.value.length)
+                                   startPostion = objText[0].getEndPositionOfChar(cursorPosition-1);
+                                else
+                                    startPostion = objText[0].getStartPositionOfChar(cursorPosition);
+                                
+                                cursor.attr({path:"M"+startPostion.x+","+box.y+"L"+startPostion.x+","+box.y2});
+                }
+                this.undblclick(StartEditState);
+                this.unclick(StartEditState);
+                this.click(StartEditState);
+                isFirstOnBlur = false;
+                myText.onblur = function(e){
+                     isFirstOnBlur = true;
+                    //延迟执行
+                    setTimeout(function(){
+                           if(isFirstOnBlur){
+                                cursorHide(cursor);
+                                objText.unclick(StartEditState);
+                                StartSelectState(e);
+                            }
+                    },200);
+                }  
+            }
+        var startHandler = function(x,y,event){
+                          this.xx = this.attr("x"); 
+                          this.yy = this.attr("y"); 
+                    }
+                   var endHandler = function(event){
+                        var box =  objText.getBBox();
+                        editor.attr({x:box.x-2,y:box.y-2,width:box.width+4,height:box.height+4,fill:"transparent",stroke:"#f00","stroke-dasharray":""});
+                        editor.show();
+                   }
+                   var moveHandler = function(dx,dy,x,y,event){
+                      if(isNaN(dx) || isNaN(dy)) return;
+                      var attr = {x: this.xx + dx, y: this.yy + dy}; 
+                      this.attr(attr); 
+                       var box =  objText.getBBox();
+                        editor.attr({x:box.x-2,y:box.y-2,width:box.width+4,height:box.height+4,fill:"transparent",stroke:"#f00","stroke-dasharray":""});
+                        editor.show();
+                   }    
+         var StartSelectState = function(e){
+                    objText.attr({cursor:"move"}).drag(moveHandler,startHandler,endHandler);
+                    state = EditorState.select;
+                    var box =  objText.getBBox();
+                    editor.attr({x:box.x-2,y:box.y-2,width:box.width+4,height:box.height+4,fill:"transparent",stroke:"#f00","stroke-dasharray":""});
+                    editor.show();
+                    objText.unclick(StartSelectState);
+                    objText.dblclick(StartEditState);
+                    stopPropagation(e);
+           }
+            /*
+ * 设置输入域(input/textarea)光标的位置
+ * @param {HTMLInputElement/HTMLTextAreaElement} elem
+ * @param {Number} index
+ */
+function setCursorPosition(elem, index) {
+    var val = elem.value
+    var len = val.length
+ 
+    // 超过文本长度直接返回
+    if (len < index) return
+    setTimeout(function() {
+        elem.focus()
+        if (elem.setSelectionRange) { // 标准浏览器
+            elem.setSelectionRange(index, index)   
+        } else { // IE9-
+            var range = elem.createTextRange()
+            range.moveStart("character", -len)
+            range.moveEnd("character", -len)
+            range.moveStart("character", index)
+            range.moveEnd("character", 0)
+            range.select()
+        }
+    }, 10)
+}
+ function getCursortPosition (elem) {
+    var CaretPos = 0;   // IE Support
+    if (document.selection) {
+        elem.focus ();
+        var Sel = document.selection.createRange ();
+        Sel.moveStart ('character', -elem.value.length);
+        CaretPos = Sel.text.length;
+    }
+    // Firefox support
+    else if (elem.selectionStart || elem.selectionStart == '0')
+        CaretPos = elem.selectionStart;
+    return (CaretPos);
+}
+            //编辑状态下，隐藏和显示文本光标
+            var timer = null;
+            var timerTarget = null;
+            var timerFlag = false;
+            var cursorShow = function(cursor){
+                  timerFlag = ! timerFlag;
+                 if(timerTarget==null) timerTarget = cursor;
+                  if(timerFlag){
+                      timerTarget.show();
+                  }else{
+                      timerTarget.hide();
+                  }
+                  timer = setTimeout(cursorShow,500);
+            }
+            var cursorHide = function(cursor){
+                 if(timer) clearTimeout(timer);
+                 cursor.hide();
+                timerTarget = null;
+                timer = null;
+                timerFlag = false;
+            }
+            //状态：选中，编辑，正常显示
+            var EditorState = {  select:"01",edit:"02",show:"03" };
+            var state = EditorState.show;
+            var pager = new  Raphael(0,0,1260,891);
+            var editor = pager.rect(100,30,100,100).hide();
+            var objText = pager.text(300,60,"文本编辑示例").attr({"pointer-events": "inherit","cursor": "hand","font-size":"28px"}).hover(HoverIn,HoverOut);
+            var cursor = pager.path("M10,10L10,20").attr({stroke:"#2ff","stroke-width":2}).hide();
+            document.onclick = function(e){
+                 e = e|| event;
+                var target = e.target || e.srcElement;
+                if(target.nodeName=="tspan"||target.nodeName=="text") return;
+             if(state == EditorState.select){
+                        state = EditorState.show;
+                        editor.hide();
+                        objText.hover(HoverIn,HoverOut);
+                        objText.undrag();
+                 }
+            }
+            function stopPropagation(e) {  
+                e = e || window.event;  
+                if(e.stopPropagation) { //W3C阻止冒泡方法  
+                    e.stopPropagation();  
+                } else {  
+                    e.cancelBubble = true; //IE阻止冒泡方法  
+                }  
+            }
+    </script>
+</body>
+</html>

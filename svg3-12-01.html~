@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>数学试题</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="raphael.js">
+</script>
+</head>
+<body>
+<svg id="my_svg" xmlns="http://www.w3.org/2000/svg" version="1.1" width="1260" height="891">
+  <line x1="90" y1="20" x2="90" y2="871" style="stroke:rgb(0,0,0);stroke-width:1"/>
+  <!-- 矩形 -->
+  <rect x="1" y="20" width="73" height="200" style="fill:rgb(255,255,255);stroke-width:1;stroke:black;"/>
+  <!-- 姓名 -->
+  <text x="20" y="200" fill="black" transform="rotate(270 20,200)" style="font-size:14px;">姓名</text>	
+  <line x1="26" y1="40" x2="26" y2="170" fill="black" style="stroke:black;stroke-width:1"/>
+  <!-- 学号 -->
+  <text x="50" y="200" fill="black" transform="rotate(270 50,200)" style="font-size:14px;">学号</text>	
+  <line x1="56" y1="40" x2="56" y2="170" fill="black" style="stroke:black;stroke-width:1"/>
+  <!-- 二维码 -->
+  <image x="10" y="240" width="60" height="60" xlink:href="erweima.jpg"></image>
+  
+  <!-- 学号 -->
+  <text x="50" y="570" fill="black" transform="rotate(270 50,570)" style="font-size:14px;">学号</text>
+  <!-- 班级 -->
+  <text x="50" y="870" fill="black" transform="rotate(270 50,870)" style="font-size:14px;">班级</text>
+  <!-- 标题 -->
+  <text x="390" y="40" text-anchor="middle" fill="black" style="font-size:18px;font-weight:bold;">2014-2015学年度第二学期寒假作业检查</text>
+  <!-- 一、单选选择 -->
+  <text x="120" y="80" text-anchor="start" fill="black" style="font-size:16px;">一、单选选择</text>
+
+
+</svg>
+<script>
+var svg = document.getElementById("my_svg");
+<!-- 绘制左边所有纵线 -->
+var y1=330,y2=530,y3=630,y4=830;
+var x_arr = [20,35,50,65];
+for(var i =0;i<4;i++){
+	svg.innerHTML += '<line x1="'+x_arr[i]+'" y1="'+y1+'" x2="'+x_arr[i]+'" y2="'+y2+'" fill="black" style="stroke:black;stroke-width:1"/>';
+	svg.innerHTML += '<line x1="'+x_arr[i]+'" y1="'+y3+'" x2="'+x_arr[i]+'" y2="'+y4+'" fill="black" style="stroke:black;stroke-width:1"/>';
+}
+<!-- 绘制左边所有横线 -->
+for(var i=0;i<=10;i++){
+	svg.innerHTML += '<line x1="'+x_arr[0]+'" y1="'+(y1+i*20)+'" x2="'+x_arr[1]+'" y2="'+(y1+i*20)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+	svg.innerHTML += '<line x1="'+x_arr[0]+'" y1="'+(y3+i*20)+'" x2="'+x_arr[1]+'" y2="'+(y3+i*20)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+	svg.innerHTML += '<line x1="'+x_arr[2]+'" y1="'+(y1+i*20)+'" x2="'+x_arr[3]+'" y2="'+(y1+i*20)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+	svg.innerHTML += '<line x1="'+x_arr[2]+'" y1="'+(y3+i*20)+'" x2="'+x_arr[3]+'" y2="'+(y3+i*20)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+}
+<!-- 绘制左边所有数字 -->
+for(var i=0;i<10;i++){
+	svg.innerHTML += '<text x="'+(x_arr[0]+12)+'" y="'+(y1+i*20+16)+'"  transform="rotate(270 '+(x_arr[0]+12)+','+(y1+i*20+16)+')"  fill="black" style="font-size:14px;">'+(9-i)+'</text>';
+	svg.innerHTML += '<text x="'+(x_arr[0]+12)+'" y="'+(y3+i*20+16)+'"  transform="rotate(270 '+(x_arr[0]+12)+','+(y3+i*20+16)+')"  fill="black" style="font-size:14px;">'+(9-i)+'</text>';
+	svg.innerHTML += '<text x="'+(x_arr[2]+12)+'" y="'+(y1+i*20+16)+'"  transform="rotate(270 '+(x_arr[2]+12)+','+(y1+i*20+16)+')"  fill="black" style="font-size:14px;">'+(9-i)+'</text>';
+	svg.innerHTML += '<text x="'+(x_arr[2]+12)+'" y="'+(y3+i*20+16)+'"  transform="rotate(270 '+(x_arr[2]+12)+','+(y3+i*20+16)+')"  fill="black" style="font-size:14px;">'+(9-i)+'</text>';
+}
+ 
+<!-- 单选题 -->
+var t_num = 7;//单选的数量
+var t_opt = 4;//单选选项数
+var letter_arr = ["A","B","C","D","E","F","G","H"];//依次的字母选项
+var l_x = 120,r_x=390,num_width=60,letter_width=45,current_y=100;
+var n_2 =parseInt((t_num+1) /2);
+var current_width = num_width+letter_width*t_opt;//当前宽度=题号宽度+选项宽度×选项数
+//调整右边的起始X值
+r_x = 660-current_width;
+for(var i=0;i<=n_2;i++){
+	//绘制右边文本
+	if(i!=n_2)
+        	svg.innerHTML += '<text x="'+(l_x+13)+'" y="'+(current_y+i*20+15)+'" fill="black" style="font-size:14px;">'+(i+1)+'、'+'</text>';
+	//绘制右边横线
+	svg.innerHTML += '<line x1="'+l_x+'" y1="'+(current_y+i*20)+'" x2="'+(l_x+current_width)+'" y2="'+(current_y+i*20)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+}
+for(var i=0;i<=(t_num-n_2);i++){
+	//绘制左边文本
+	if(i!=(t_num-n_2))
+        	svg.innerHTML += '<text x="'+(r_x+13)+'" y="'+(current_y+i*20+15)+'" fill="black" style="font-size:14px;">'+(i+n_2+1)+'、'+'</text>';
+	//绘制左边横线
+	svg.innerHTML += '<line x1="'+r_x+'" y1="'+(current_y+i*20)+'" x2="'+(r_x+current_width)+'" y2="'+(current_y+i*20)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+}
+for(var i=-1;i<=t_opt;i++){
+	//绘制所有纵线
+	if(i==-1){
+		svg.innerHTML += '<line x1="'+l_x+'" y1="'+current_y+'" x2="'+l_x+'" y2="'+(current_y+n_2*20)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+		svg.innerHTML += '<line x1="'+r_x+'" y1="'+current_y+'" x2="'+r_x+'" y2="'+(current_y+(t_num-n_2)*20)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+	}
+	else {
+	svg.innerHTML += '<line x1="'+(l_x+num_width+i*letter_width)+'" y1="'+current_y+'" x2="'+(l_x+num_width+i*letter_width)+'" y2="'+(current_y+n_2*20)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+	svg.innerHTML += '<line x1="'+(r_x+num_width+i*letter_width)+'" y1="'+current_y+'" x2="'+(r_x+num_width+i*letter_width)+'" y2="'+(current_y+(t_num-n_2)*20)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+
+		//绘制所有选项
+		if(i!=t_opt){
+			var  current_x = (l_x+num_width+i*letter_width);
+			for(var j=0;j<n_2;j++){
+				svg.innerHTML += '<text x="'+(l_x+num_width+i*letter_width+5)+'" y="'+(current_y+j*20+14)+'" fill="black" style="font-size:14px;">'+'【'+letter_arr[i]+'】'+'</text>';
+			}
+			for(var j=0;j<(t_num-n_2);j++){
+				svg.innerHTML += '<text x="'+(r_x+num_width+i*letter_width+5)+'" y="'+(current_y+j*20+14)+'" fill="black" style="font-size:14px;">'+'【'+letter_arr[i]+'】'+'</text>';
+			}
+		}
+			
+	}
+}
+
+current_y += n_2 * 20;
+<!-- 填空题 -->
+svg.innerHTML +='<text x="120" y="'+(current_y+30)+'" text-anchor="start" fill="black" style="font-size:16px;">二、填空题</text>';
+var column_num = 7;
+current_y += 50;
+var t_num = 7;//填空题的数量
+var n_2 =parseInt((t_num+1) /2);
+
+var DrawFillBlank = function(l_x,column_num,current_width,current_y,height){
+	var column_width = current_width/column_num;
+	//绘制纵线
+for(var i=0;i<=column_num;i++)
+{
+	if(i==0 || i==column_num){
+		svg.innerHTML += '<line x1="'+(l_x+i*column_width)+'" y1="'+current_y+'" x2="'+(l_x+i*column_width)+'" y2="'+(current_y+height)+'" fill="black" style="stroke:black;stroke-width:1"/>';	
+	}else{
+		svg.innerHTML += '<line x1="'+(l_x+i*column_width)+'" y1="'+current_y+'" x2="'+(l_x+i*column_width)+'" y2="'+(current_y+20)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+	}
+}
+//绘制2条横线
+svg.innerHTML += '<line x1="'+l_x+'" y1="'+current_y+'" x2="'+(l_x+current_width)+'" y2="'+current_y+'" fill="black" style="stroke:black;stroke-width:1"/>';
+svg.innerHTML += '<line x1="'+l_x+'" y1="'+(current_y+20)+'" x2="'+(l_x+current_width)+'" y2="'+(current_y+20)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+}
+
+for(var i=0;i<n_2;i++){
+	DrawFillBlank(l_x,column_num,current_width,current_y+i*80,80);
+}
+svg.innerHTML += '<line x1="'+l_x+'" y1="'+(current_y+n_2*80)+'" x2="'+(l_x+current_width)+'" y2="'+(current_y+n_2*80)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+
+for(var i=0;i<(t_num-n_2);i++){
+	DrawFillBlank(r_x,column_num,current_width,current_y+i*80,80);
+}
+svg.innerHTML += '<line x1="'+r_x+'" y1="'+(current_y+(t_num-n_2)*80)+'" x2="'+(r_x+current_width)+'" y2="'+(current_y+(t_num-n_2)*80)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+
+<!-- 解答题 -->
+current_y += n_2*80;
+svg.innerHTML +='<text x="120" y="'+(current_y+30)+'" text-anchor="start" fill="black" style="font-size:16px;">三、解答题</text>';
+DrawFillBlank(l_x,18,540,current_y+50,260);
+current_y+=50;
+svg.innerHTML += '<line x1="'+l_x+'" y1="'+(current_y+260)+'" x2="'+(l_x+540)+'" y2="'+(current_y+260)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+current_y = 50;
+l_x = 700;
+DrawFillBlank(l_x,18,540,current_y,260);
+current_y+=260;
+DrawFillBlank(l_x,18,540,current_y,300);
+current_y+=300;
+DrawFillBlank(l_x,18,540,current_y,250);
+svg.innerHTML += '<line x1="'+l_x+'" y1="'+(current_y+250)+'" x2="'+(l_x+540)+'" y2="'+(current_y+250)+'" fill="black" style="stroke:black;stroke-width:1"/>';
+
+
+
+
+
+
+
+
+
+
+</script>
+
+</body>
+</html>

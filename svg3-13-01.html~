@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>数学试题</title>
+<meta charset="UTF-8">
+<script type="text/javascript" src="raphael.js">
+</script>
+</head>
+<body>
+
+<script>
+//绘制姓名和学号框
+var DrawNameAndNo = function(pager){
+	var rect_x = 10,rect_y = 20,width=70,height=200;
+
+	var startHandler = function(x,y,event){
+		this.xx = this.attr("x"); 
+		this.yy = this.attr("y"); 
+	}
+	var endHandler = function(event){
+		rect_x = this.attr("x");
+		rect_y = this.attr("y"); 
+	}
+	var moveHandler = function(dx,dy,x,y,event){
+		if(isNaN(dx) || isNaN(dy)) return;
+		var attr = {x: this.xx + dx, y: this.yy + dy}; 
+		this.attr(attr); 
+		text_name.attr({x:this.xx-dy+15,y:this.yy+dx+170});
+		text_numb.attr({x:this.xx-dy+45,y:this.yy+dx+170});
+		line_name.attr({path:"M"+(this.xx + dx+24)+","+(this.yy + dy+20)+"L"+(this.xx + dx+24)+","+(this.yy + dy+150)});
+		line_numb.attr({path:"M"+(this.xx + dx+48)+","+(this.yy + dy+20)+"L"+(this.xx + dx+48)+","+(this.yy + dy+150)});
+	}
+	pager.rect(rect_x,rect_y,width,height).attr({'fill':'#fff'}).drag(moveHandler,startHandler,endHandler).hover(function(){
+		this.attr({cursor:"hand"});
+	});//学生填写姓名和学号的框
+	var text_name = pager.text(rect_x+15,rect_y+170,"姓名：").transform("r270").attr({'font-size':14});
+	var line_name =pager.path("M"+(rect_x+24)+","+(rect_y+20)+"L"+(rect_x+24)+","+(rect_y+150));//姓名横线
+	var text_numb = pager.text(rect_x+45,rect_y+170,"学号：").transform("r270").attr('font-size',14);
+	var line_numb =pager.path("M"+(rect_x+48)+","+(rect_y+20)+"L"+(rect_x+48)+","+(rect_y+150));//学号横线
+}
+//绘制二维码
+var DrawErWeiMa = function(pager){
+	var img_x = 15,img_y = 240,width = 60,height = 60;
+	
+	var startHandler = function(x,y,event){
+		this.xx = this.attr("x"); 
+		this.yy = this.attr("y"); 
+	}
+	var endHandler = function(event){
+		img_x = this.attr("x");
+		img_y = this.attr("y"); 
+	}
+	var moveHandler = function(dx,dy,x,y,event){
+		if(isNaN(dx) || isNaN(dy)) return;
+		var attr = {x: this.xx + dx, y: this.yy + dy}; 
+		this.attr(attr); 
+	}
+	pager.image("erweima.jpg",img_x,img_y,width,height).drag(moveHandler,startHandler,endHandler).hover(function(){
+		this.attr({cursor:"hand"});
+	});;//二维码
+}
+
+//绘制涂写的班级和学号
+var DrawGradeAndNo = function(pager){
+	var y1=338,y2=638;
+	var width =15,height=200,font_size = 12;
+	var x1=27,x2=57;
+	pager.text(48,y1+223,"学号").transform("r270").attr('font-size',14);
+	pager.text(48,y2+223,"年级").transform("r270").attr('font-size',14);
+	pager.rect(x1,y1,width,height);//学号-第一个框
+	pager.rect(x2,y1,width,height);//学号-第二个框
+	pager.rect(x1,y2,width,height);//年级-第一个框
+	pager.rect(x2,y2,width,height);//年级-第二个框
+	for(var i=0;i<10;i++){
+		current_y1 = y1 + i*20;
+		current_y2 = y2 + i*20;
+		pager.text(x1+8,current_y1+10,9-i).transform("r270").attr('font-size',font_size);
+		pager.text(x2+8,current_y1+10,9-i).transform("r270").attr('font-size',font_size);
+		pager.text(x1+8,current_y2+10,9-i).transform("r270").attr('font-size',font_size);
+		pager.text(x2+8,current_y2+10,9-i).transform("r270").attr('font-size',font_size);
+		if(i!=0){
+			pager.path("M"+x1+","+current_y1+"L"+(x1+width)+","+current_y1);	
+			pager.path("M"+x2+","+current_y1+"L"+(x2+width)+","+current_y1);	
+			pager.path("M"+x1+","+(current_y2)+"L"+(x1+width)+","+(current_y2));	
+			pager.path("M"+x2+","+(current_y2)+"L"+(x2+width)+","+(current_y2));	
+		}
+	}
+}
+
+
+//以下开始绘制试卷内容
+var DrawExaminationPaper = function(pager){
+	var current_y = DrawPagerTitle(pager);
+	//绘制单项选择题
+	res = DrawSingleSelect(pager,current_y);
+	//绘制填空题
+	res = DrawSubjectiveItem(pager,res.current_y,res.x_i,"二、填空题",8,5);
+	//绘制解答题
+	res = DrawSubjectiveItem(pager,res.current_y,res.x_i,"三、解答题",18,10);
+
+}
+
+//绘制试卷标题
+var DrawPagerTitle = function(pager){
+	var font_family = "",font_size="18",font_weight="bold";
+	var pager_title = "2014-2015学年度第二学期寒假作业检查";
+	var pager_x = 390,pager_y = 40;
+	pager.text(pager_x,pager_y,pager_title).attr({'font-size':font_size,'font-weight':font_weight});
+	return pager_y+30;
+}
+
+//绘制单选题
+var DrawSingleSelect  = function(pager,current_y){
+	var t_num = 7;//单选的数量
+	var t_opt = 4;//单选选项数,如果大于等于7则会一排显示
+	var letter_arr = ["A","B","C","D","E","F","G","H","I","J","K"];//依次的字母选项，可自定义
+	var t_no_width = [60,50,40];//题号显示宽度
+	
+	var n_2 =parseInt((t_num+1) /2);//选项数小于7分两侧显示
+	var width = 240;//两侧显示宽度[120-640][700-1220]
+	var height = 20;//单行显示高度
+	var x_arr = [130,650,700,1220,1270,1790];	
+	var opt_width = (width-t_no_width[t_opt-4])/t_opt;
+	var pager_height = 870;//首先计算是否有超出的部分，超出的部分会划分多个模块
+	var t_title = "一、单项选择";
+	current_y += 10;
+	pager.text(x_arr[0],current_y,t_title).attr({'font-size':16,'text-anchor':"start"});//绘制题型标题
+	current_y += 25;
+	//绘制左边的单项选择题表格
+	var l_y = current_y;
+	pager.rect(x_arr[0],l_y,width,height*n_2);	
+	for(var i=0;i<n_2;i++){
+		pager.rect(x_arr[0],l_y+i*height,width,height);	
+		pager.text(x_arr[0]+t_no_width[t_opt-4]/5,l_y+i*height+height/2,(i+1)+"、").attr({'font-size':14,'text-anchor':"start"});	
+	}
+	//绘制右边的单项选择题表格
+	var r_y = current_y;
+	pager.rect(x_arr[1]-width,l_y,width,height*(t_num-n_2));	
+	for(var i=n_2;i<t_num;i++){
+		pager.rect(x_arr[1]-width,r_y+((i-n_2)*height),width,height);
+		pager.text(x_arr[1]-width+t_no_width[t_opt-4]/5,r_y+(i-n_2)*height+height/2,(i+1)+"、").attr({'font-size':14,'text-anchor':"start"});
+	}
+
+	//绘制纵线以及选项
+	for(var i=0;i<t_opt;i++){
+		var l_x = t_no_width[t_opt-4]+x_arr[0]+opt_width*i;
+		pager.path("M"+l_x+","+l_y+"L"+l_x+","+(l_y+height*n_2));
+		var r_x = t_no_width[t_opt-4]+x_arr[1]-width+opt_width*i;
+		pager.path("M"+r_x+","+l_y+"L"+r_x+","+(l_y+height*(t_num-n_2)));
+		for(var j=0;j<n_2;j++){
+			pager.text(l_x+opt_width/2,l_y+height*j+height/2,"【"+letter_arr[i]+"】").attr({'font-size':14});	
+		}
+		for(var j=n_2;j<t_num;j++){
+			pager.text(r_x+opt_width/2,l_y+height*(j-n_2)+height/2,"【"+letter_arr[i]+"】").attr({'font-size':14});
+		}				
+	}
+	return	{current_y: current_y+height*n_2,x_i:0};
+}
+
+//绘制主观题，根据分值选项来定，小于等于10，大于10，分为两列和不分两列
+var DrawSubjectiveItem = function(pager,current_y,current_x_i,title,opt,score){
+	var t_num = 30;//主观题的数量
+	var t_opt = opt;//主观题选项数,如果大于等于10则会一排显示
+	var width = 240;//两侧显示宽度[120-640][700-1220]
+	var height = 20;//单行显示高度
+	var x_arr = [130,650,700,1220,1270,1790,1840,2320,2650,3170,3220,3740];
+	var pager_height = 870;//首先计算是否有超出的部分，超出的部分会划分多个模块
+	var t_title = title;
+	current_y += 30;
+	pager.text(x_arr[current_x_i],current_y,t_title).attr({'font-size':16,'text-anchor':"start"});//绘制题型标题
+	current_y += 25;
+	var height_arr = [];
+	var rect_arr = [];
+	
+
+	var startHandler = function(x,y,event){
+		this.h = this.attr("height"); 
+	}
+	var endHandler = function(event){
+		height_arr[this.data('i')] = this.attr("height"); 
+		repaint(false);
+	}
+	var moveHandler = function(dx,dy,x,y,event){
+		if(isNaN(dx) || isNaN(dy)) return;
+		var attr = {height: this.h + dy}; 
+		
+		this.attr(attr); 
+	}
+
+	var repaint  =  function(first){
+		
+		if(opt<=10){
+			width = 240;
+			//划分为两列绘制
+			var n_2 =parseInt((t_num+1) /2);//选项数小于7分两侧显示
+			var l_y = current_y;
+			var x_i = current_x_i;
+			var sum_height = 0;
+			for(var i = 0;i<n_2;i++){
+				var first_height = first?height*4:height_arr[i];
+				if((l_y+sum_height+first_height)>pager_height){
+					l_y = 40-sum_height;
+					x_i += 2;
+				}
+				if(first){
+					height_arr[i] = height*4;
+					rect_arr[i]= pager.rect(x_arr[x_i],l_y+sum_height,width,first_height).drag(moveHandler,startHandler,endHandler).hover(function(){
+						this.attr({cursor :"crosshair",stroke:"#f00","stroke-width":3});
+					},function(){
+						this.attr({cursor :"default",stroke:"#000","stroke-width":1});
+					})
+					.attr({fill:"#fff",title:"鼠标上下移动可以改变试题框的高度"}).data("i",i);
+					//绘制相关对象
+					for(var j=0;j<opt;j++){
+						rect_arr[i][j] = pager.rect(x_arr[x_i]+j*width/opt,l_y+sum_height,width/opt,height);
+						rect_arr[i]['t_'+j] = pager.text(x_arr[x_i]+j*width/opt+width/opt/2,l_y+sum_height+height/2,j==0?(i+1)+"、":(j-1)>score?"":(j-1));
+					}
+					
+				}else{
+					rect_arr[i].attr({x:x_arr[x_i],y:l_y+sum_height,width:width,height:first_height});
+					//绘制相关对象
+					for(var j=0;j<opt;j++){
+						rect_arr[i][j].attr({x:x_arr[x_i]+j*width/opt,y:l_y+sum_height,width:width/opt,height:height});
+						rect_arr[i]['t_'+j].attr({x:x_arr[x_i]+j*width/opt+width/opt/2,y:l_y+sum_height+height/2});
+					}
+				}
+				sum_height += first?height*4:height_arr[i];
+			}
+			x_i = current_x_i+1;
+			var r_y = current_y;
+			sum_height = 0;
+			for(var i=n_2;i<t_num;i++){
+				var first_height = first?height*4:height_arr[i];
+				if((r_y+sum_height+first_height)>pager_height){
+					r_y = 40-sum_height;
+					x_i += 2;
+				}
+				if(first){
+					height_arr[i] = height*4;
+					rect_arr[i] = pager.rect(x_arr[x_i]-width,r_y+sum_height,width,first_height).drag(moveHandler,startHandler,endHandler).hover(function(){
+						this.attr({cursor :"crosshair",stroke:"#f00","stroke-width":3});
+					},function(){
+						this.attr({cursor :"default",stroke:"#000","stroke-width":1});
+					})
+					.attr({fill:"#fff",title:"鼠标上下移动可以改变试题框的高度"}).data("i",i);
+					//绘制相关对象
+					for(var j=0;j<opt;j++){
+						rect_arr[i][j] = pager.rect(x_arr[x_i]-width+j*width/opt,r_y+sum_height,width/opt,height);
+						rect_arr[i]['t_'+j] = pager.text(x_arr[x_i]-width+j*width/opt+width/opt/2,r_y+sum_height+height/2,j==0?(i+1)+"、":(j-1)>score?"":(j-1));
+					}
+				}else
+				{
+					rect_arr[i].attr({x:x_arr[x_i]-width,y:r_y+sum_height,width:width,height:first_height});
+					//绘制相关对象
+					for(var j=0;j<opt;j++){
+						rect_arr[i][j].attr({x:x_arr[x_i]-width+j*width/opt,y:r_y+sum_height,width:width/opt,height:height});
+						rect_arr[i]['t_'+j].attr({x:x_arr[x_i]-width+j*width/opt+width/opt/2,y:r_y+sum_height+height/2});
+					}
+				}	
+				sum_height += first?height*4:height_arr[i];
+			}
+			return {current_y: l_y+sum_height,x_i:x_i-1};
+		}else{
+			width = 520;
+			//划分为一列绘制
+			var l_y = current_y;
+			var x_i = current_x_i;
+			var sum_height = 0;
+			for(var i = 0;i<t_num;i++){
+				var first_height = first?height*4:height_arr[i];
+				if((l_y+sum_height+first_height)>pager_height){
+					l_y = 40-sum_height;
+					x_i += 2;
+				}
+				if(first){
+					height_arr[i] = height*4;
+					rect_arr[i]= pager.rect(x_arr[x_i],l_y+sum_height,width,first_height).drag(moveHandler,startHandler,endHandler).hover(function(){
+						this.attr({cursor :"crosshair",stroke:"#f00","stroke-width":3});
+					},function(){
+						this.attr({cursor :"default",stroke:"#000","stroke-width":1});
+					})
+					.attr({fill:"#fff",title:"鼠标上下移动可以改变试题框的高度"}).data("i",i);
+					//绘制相关对象
+					for(var j=0;j<opt;j++){
+						rect_arr[i][j] = pager.rect(x_arr[x_i]+j*width/opt,l_y+sum_height,width/opt,height);
+						rect_arr[i]['t_'+j] = pager.text(x_arr[x_i]+j*width/opt+width/opt/2,l_y+sum_height+height/2,j==0?(i+1)+"、":(j-1)>score?"":(j-1));
+					}
+					
+				}else{
+					rect_arr[i].attr({x:x_arr[x_i],y:l_y+sum_height,width:width,height:first_height});
+					//绘制相关对象
+					for(var j=0;j<opt;j++){
+						rect_arr[i][j].attr({x:x_arr[x_i]+j*width/opt,y:l_y+sum_height,width:width/opt,height:height});
+						rect_arr[i]['t_'+j].attr({x:x_arr[x_i]+j*width/opt+width/opt/2,y:l_y+sum_height+height/2});
+					}
+				}
+				sum_height += first?height*4:height_arr[i];
+			}
+			return {current_y: l_y+height*4,x_i:x_i};
+		}
+	}
+	return repaint(true);
+	
+}
+
+
+
+
+
+
+
+var pager = new Raphael(0,0,1260*4,891);
+pager.path("M90,20L90,871");//试卷分割线
+DrawNameAndNo(pager);//绘制姓名和学号框
+DrawErWeiMa(pager);//绘制二维码
+DrawGradeAndNo(pager);//绘制年级和学号
+DrawExaminationPaper(pager);//绘制试卷主体内容
+
+</script>
+
+</body>
+</html>
